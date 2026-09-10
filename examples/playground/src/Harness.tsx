@@ -11,6 +11,7 @@ export function Harness() {
   const [mounted, setMounted] = useState(true);
   const [starts, setStarts] = useState(0),
     [ends, setEnds] = useState(0);
+  const [error, setError] = useState('');
   const [count, setCount] = useState(1);
   return (
     <div>
@@ -50,6 +51,7 @@ export function Harness() {
       <output data-testid="events">
         {starts}/{ends}
       </output>
+      {error && <p role="alert">{error}</p>}
       {mounted &&
         Array.from({ length: count }, (_, i) => (
           <MorphGlyph
@@ -58,6 +60,7 @@ export function Harness() {
             before={before}
             after={after}
             fontSize={40}
+            onError={(error) => setError(`${error.message}: ${String(error.cause ?? '')}`)}
             onStart={() => setStarts((n) => n + 1)}
             onComplete={() => setEnds((n) => n + 1)}
             {...(controlled ? { progress } : { duration: 1000 })}

@@ -91,6 +91,7 @@ export function EndpointText({
         position: 'absolute',
         color: 'transparent',
         WebkitTextFillColor: 'transparent',
+        forcedColorAdjust: 'none',
         zIndex: 0,
         left: projection.left + (x - viewBox.x) * projection.scale,
         top: projection.top + (-ascent - viewBox.y) * projection.scale,
