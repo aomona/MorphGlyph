@@ -57,7 +57,7 @@ export function App() {
   const [spacing, setSpacing] = useState(0);
   const [easing, setEasing] = useState<Easing>('smooth');
   const [quality, setQuality] = useState<Quality>('balanced');
-  const [loop, setLoop] = useState(false);
+  const [loop, setLoop] = useState(true);
   const [outline, setOutline] = useState(false);
   const [playing, setPlaying] = useState(false);
   const [ready, setReady] = useState(false);
