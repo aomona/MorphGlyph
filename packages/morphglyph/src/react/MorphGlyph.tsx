@@ -1,9 +1,15 @@
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { createPlan } from '../core/transform';
 import type { MorphPlan, Shape } from '../core/types';
-import { layoutText, loadFont, MorphGlyphError } from '../fonts/font';
+import {
+  layoutText,
+  loadFont,
+  MorphGlyphError,
+  normalizeText,
+  type FontHandle,
+} from '../fonts/font';
 import { useSharedFont } from './provider';
-import { idleControls, Surface } from './Surface';
+import { idleControls, Surface, type SurfaceSemantics } from './Surface';
 import type { MorphGlyphHandle, MorphGlyphProps } from './types';
 import { useReducedMotion } from './useReducedMotion';
 
@@ -19,10 +25,19 @@ export const MorphGlyph = forwardRef<MorphGlyphHandle, MorphGlyphProps>(
     } = props;
     const shared = useSharedFont();
     const font = props.font ?? shared;
-    const [plan, setPlan] = useState<MorphPlan | null>(null);
+    const [prepared, setPrepared] = useState<{
+      plan: MorphPlan;
+      font: FontHandle;
+      fromText: string | null;
+      toText: string;
+    } | null>(null);
     const [error, setError] = useState<Error | null>(null);
-    const [atEnd, setAtEnd] = useState(false);
+    const [semantics, setSemantics] = useState<SurfaceSemantics>({
+      label: before,
+      selectable: false,
+    });
     const snapshot = useRef<Shape | null>(null);
+    const snapshotText = useRef<string | null>(null);
     const controls = useRef(idleControls());
     const callbacks = useRef(props);
     callbacks.current = props;
@@ -77,14 +92,19 @@ export const MorphGlyph = forwardRef<MorphGlyphHandle, MorphGlyphProps>(
           const next = createPlan(source, target, quality);
           previous.current = { before, after, font, fontSize, letterSpacing, align };
           setError(null);
-          setPlan(next);
+          setPrepared({
+            plan: next,
+            font: handle,
+            fromText: continuing && snapshot.current ? snapshotText.current : normalizeText(before),
+            toText: normalizeText(after),
+          });
           callbacks.current.onReady?.();
         })
         .catch((cause: unknown) => {
           if (stale) return;
           const failure = cause instanceof Error ? cause : new Error(String(cause));
           setError(failure);
-          setPlan(null);
+          setPrepared(null);
           callbacks.current.onError?.(failure);
         });
       return () => {
@@ -92,15 +112,18 @@ export const MorphGlyph = forwardRef<MorphGlyphHandle, MorphGlyphProps>(
       };
     }, [before, after, font, fontSize, letterSpacing, align, quality, controlled]);
 
-    const label = props['aria-label'] ?? (error || atEnd ? after : before);
+    const nativeText = !prepared || semantics.selectable;
+    const label = props['aria-label'] ?? (error ? after : semantics.label);
+    const imageRole = props['aria-label'] !== undefined || !nativeText;
     return (
       <span
         id={props.id}
         className={props.className}
-        role="img"
-        aria-label={label}
+        role={imageRole ? 'img' : undefined}
+        aria-label={imageRole ? label : undefined}
         data-morphglyph=""
-        data-state={error ? 'error' : plan ? 'ready' : 'loading'}
+        data-state={error ? 'error' : prepared ? 'ready' : 'loading'}
+        data-selectable={nativeText ? 'true' : 'false'}
         style={{
           display: 'inline-block',
           verticalAlign: 'middle',
@@ -108,18 +131,22 @@ export const MorphGlyph = forwardRef<MorphGlyphHandle, MorphGlyphProps>(
           ...props.style,
         }}
       >
-        {plan && !error ? (
+        {prepared && !error ? (
           <Surface
-            plan={plan}
+            plan={prepared.plan}
+            font={prepared.font}
+            fromText={prepared.fromText}
+            toText={prepared.toText}
             options={props}
             reduced={reduced}
             snapshot={snapshot}
+            snapshotText={snapshotText}
             controls={controls}
-            semantic={setAtEnd}
+            semantic={setSemantics}
           />
         ) : (
           <span
-            aria-hidden="true"
+            aria-hidden={imageRole ? true : undefined}
             style={{
               display: 'inline-block',
               fontSize,

@@ -2,7 +2,12 @@ import * as opentype from 'opentype.js';
 import { boundsOf, contoursFromCommands } from '../core/geometry';
 import type { Cubic, Shape } from '../core/types';
 
-export type FontHandle = { readonly font: opentype.Font; readonly name: string };
+export type FontHandle = {
+  readonly font: opentype.Font;
+  readonly name: string;
+  /** Original bytes used to render selectable text in the same browser font. */
+  readonly data?: ArrayBuffer;
+};
 export type FontSource = string | FontHandle;
 const fonts = new Map<string, Promise<FontHandle>>();
 const shapes = new WeakMap<FontHandle, Map<string, Shape>>();
@@ -46,8 +51,10 @@ export function loadFont(source?: FontSource): Promise<FontHandle> {
 }
 
 export function parseFont(buffer: ArrayBuffer, name = 'Custom font'): FontHandle {
-  return { font: opentype.parse(buffer), name };
+  return { font: opentype.parse(buffer), name, data: buffer };
 }
+
+export const normalizeText = (text: string) => text.replace(/\r\n?|\n/g, ' ').normalize('NFC');
 
 export function layoutText(
   handle: FontHandle,
@@ -56,7 +63,7 @@ export function layoutText(
   spacing: number,
   align: 'left' | 'center' | 'right',
 ): Shape {
-  text = text.replace(/\r\n?|\n/g, ' ').normalize('NFC');
+  text = normalizeText(text);
   if (Array.from(text).length > 256)
     throw new MorphGlyphError(
       'TEXT_LIMIT',

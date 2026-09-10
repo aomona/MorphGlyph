@@ -22,6 +22,8 @@ export type MorphGlyphBaseProps = {
   pathArc?: number;
   quality?: Quality;
   reducedMotion?: 'system' | 'always' | 'never';
+  /** Render native selectable text at exact endpoints. Disable for decorative button labels. */
+  selectable?: boolean;
   fallback?: ReactNode;
   onReady?: () => void;
   onStart?: () => void;
@@ -44,6 +46,8 @@ export type AutomaticPlayback = {
   stagger?: number;
   playing?: boolean;
   loop?: boolean;
+  /** Hold each loop endpoint for this many milliseconds. */
+  loopDelay?: number;
   direction?: 'normal' | 'reverse' | 'alternate';
 };
 export type ControlledPlayback = {
@@ -53,6 +57,7 @@ export type ControlledPlayback = {
   stagger?: never;
   playing?: never;
   loop?: never;
+  loopDelay?: never;
   direction?: never;
 };
 export type MorphGlyphProps = MorphGlyphBaseProps & (AutomaticPlayback | ControlledPlayback);

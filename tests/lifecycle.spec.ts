@@ -28,8 +28,9 @@ test('after changes continue from the displayed frame; before changes reset', as
   await page.getByRole('textbox', { name: 'Target' }).fill('日本語');
   await expect(glyph.locator('g')).toHaveAttribute('data-progress', '0');
   expect(await glyph.locator('g').innerHTML()).toBe(first);
+  await expect(glyph.locator('[data-morphglyph-text]')).toHaveCount(0);
   await page.getByRole('textbox', { name: 'Source' }).fill('田');
-  await expect(glyph).toHaveAttribute('aria-label', '田');
+  await expect(glyph.locator('[data-morphglyph-text]')).toHaveText('田');
   await page.getByRole('button', { name: 'Mount' }).click();
   await expect(glyph).toHaveCount(0);
   await page.getByRole('button', { name: 'Mount' }).click();
@@ -43,10 +44,27 @@ test('StrictMode completes once, reverse reaches the source, unmount cancels', a
   await expect(page.getByTestId('events')).toHaveText('1/1');
   await page.getByRole('button', { name: 'Reverse', exact: true }).click();
   await expect(page.getByTestId('events')).toHaveText('2/2');
-  await expect(page.locator('[data-morphglyph]')).toHaveAttribute('aria-label', 'ABC');
+  await expect(page.locator('[data-morphglyph-text]')).toHaveText('ABC');
   await page.getByRole('button', { name: 'Restart' }).click();
   await page.getByRole('button', { name: 'Mount' }).click();
   const count = await page.getByTestId('events').textContent();
   await page.waitForTimeout(1100);
   await expect(page.getByTestId('events')).toHaveText(count!);
+});
+
+test('releases browser font registrations after the last unmount', async ({ page }) => {
+  await page.goto('/?test');
+  await page.getByRole('slider', { name: 'Frame' }).fill('1');
+  await expect(page.locator('[data-morphglyph-text]')).toHaveText('XYZ');
+  expect(
+    await page.evaluate(
+      () => [...document.fonts].filter((f) => f.family.startsWith('MorphGlyph-')).length,
+    ),
+  ).toBe(1);
+  await page.getByRole('button', { name: 'Mount', exact: true }).click();
+  expect(
+    await page.evaluate(
+      () => [...document.fonts].filter((f) => f.family.startsWith('MorphGlyph-')).length,
+    ),
+  ).toBe(0);
 });

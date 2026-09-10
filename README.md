@@ -57,7 +57,7 @@ Glyphs are paired in display order, with unmatched outlines growing or shrinking
 ```
 
 `progress` is an uneased value from 0 to 1. It disables the internal clock and
-cannot be combined with `playing`, `duration`, `delay`, `stagger`, `loop`, or
+cannot be combined with `playing`, `duration`, `delay`, `stagger`, `loop`, `loopDelay`, or
 `direction`. The component always calculates this frame from `before` and `after`.
 
 ### Playback controls
@@ -132,6 +132,8 @@ All time values are milliseconds. Dimensions and letter spacing use SVG units
 | `pathArc`                  | `0`                   | Radians, clamped to ±1.9π. Positive angles rotate clockwise in SVG coordinates.           |
 | `stagger`                  | `0`                   | Start delay per glyph. Excessive values are reduced to fit the total duration.            |
 | `playing`                  | uncontrolled          | Supplying a boolean controls play/pause. Otherwise autoplay is enabled.                   |
+| `loopDelay`                | `0`                   | Milliseconds to hold each endpoint between loop intervals.                                |
+| `selectable`               | `true`                | Enable an HTML text layer for selection and reading at known endpoints.                   |
 | `loop`                     | `false`               | Repeat. Provide a pause control when using loops.                                         |
 | `direction`                | `'normal'`            | `'normal'`, `'reverse'`, `'alternate'`. Alternate reverses each loop.                     |
 | `progress`                 | —                     | Controlled progress, 0–1. See the exclusions above.                                       |
@@ -157,8 +159,18 @@ All time values are milliseconds. Dimensions and letter spacing use SVG units
 - Controlled progress never fires `onStart` or `onComplete`.
 - The server and initial client render show the same ordinary-text fallback.
   SVG appears after client-side preparation. Supply dimensions to reserve space.
-- The SVG is hidden from assistive technology; the root has a semantic text label.
-  The label switches at the midpoint without an automatic live announcement.
+- At 0% and 100%, selectable HTML text uses the same font and follows the SVG
+  viewport. The SVG remains the visual layer, so enabling selection changes no
+  rendered pixels. The transparent HTML layer provides native selection, copying,
+  and ordinary text in the accessibility tree; the SVG is hidden from readers.
+- Between endpoints, the root exposes an image label that switches at the midpoint
+  without a live announcement. An interrupted intermediate shape is not exposed
+  as selectable source text. `aria-label` overrides ordinary-text semantics.
+- Use `selectable={false}` for decorative labels inside a separately named button.
+  Use `loopDelay` to give users time at endpoints and pause playback when selection
+  starts. The playground holds endpoints for one second and pauses on text press.
+- Browser accessibility-tree and clipboard behavior are tested in Chromium.
+  VoiceOver, NVDA, and browser reader modes have not been manually verified.
 - Reduced motion skips geometric animation. Controlled progress shows the source
   below 0.5 and the target at or above 0.5.
 - Animation clocks stop while the document is hidden and resume when visible.
