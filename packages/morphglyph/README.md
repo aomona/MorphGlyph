@@ -13,10 +13,10 @@ import { MorphGlyph } from 'morphglyph';
 
 ## Installation
 
-Install the package from the GitHub release (it is not published to the npm registry):
+Install from npm:
 
 ```sh
-npm install https://github.com/aomona/MorphGlyph/releases/download/v0.2.0/morphglyph-0.2.0.tgz
+npm install morphglyph
 ```
 
 Requires React 18.2+ or 19 and an ESM bundler. Tested with Vite and Next.js.
