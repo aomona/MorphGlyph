@@ -433,6 +433,25 @@ input[type='range']::-moz-range-thumb {
 .code-section {
   padding: 32px 0;
 }
+.install-command {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 16px 20px;
+  margin-bottom: 12px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  font-size: 12px;
+}
+.install-command code {
+  user-select: all;
+}
+.install-command a {
+  color: #525252;
+  padding: 4px 0;
+}
 .code-window {
   border: 1px solid var(--line);
   border-radius: 6px;

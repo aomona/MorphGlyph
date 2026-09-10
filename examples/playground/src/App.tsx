@@ -390,6 +390,12 @@ export function App() {
 
         <section className="code-section" aria-label="Usage example">
           <h2>Usage</h2>
+          <div className="install-command">
+            <code>npm install morphglyph</code>
+            <a href="https://www.npmjs.com/package/morphglyph" aria-label="MorphGlyph on npm">
+              npm ↗
+            </a>
+          </div>
           <div className="code-window">
             <div className="code-heading">
               <span>
