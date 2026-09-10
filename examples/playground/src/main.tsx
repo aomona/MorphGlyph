@@ -3,4 +3,18 @@ import { createRoot } from 'react-dom/client';
 import { App } from './App';
 import './style.css';
 
-createRoot(document.getElementById('root')!).render(<StrictMode><App /></StrictMode>);
+const root = createRoot(document.getElementById('root')!);
+if (import.meta.env.DEV && new URLSearchParams(location.search).has('test')) {
+  void import('./Harness').then(({ Harness }) =>
+    root.render(
+      <StrictMode>
+        <Harness />
+      </StrictMode>,
+    ),
+  );
+} else
+  root.render(
+    <StrictMode>
+      <App />
+    </StrictMode>,
+  );

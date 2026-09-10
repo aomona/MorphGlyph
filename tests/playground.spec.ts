@@ -1,8 +1,11 @@
 import { test, expect } from '@playwright/test';
 
-test('loads the bundled font, scrubs real paths, plays and copies code', async ({ page, context }) => {
+test('loads the bundled font, scrubs real paths, plays and copies code', async ({
+  page,
+  context,
+}) => {
   const errors: string[] = [];
-  page.on('pageerror', e => errors.push(e.message));
+  page.on('pageerror', (e) => errors.push(e.message));
   await context.grantPermissions(['clipboard-read', 'clipboard-write']);
   await page.goto('/');
   const morph = page.locator('[data-morphglyph]');
@@ -33,7 +36,8 @@ test('handles Japanese, empty text and missing glyph fallback', async ({ page })
   await expect(page.locator('[data-morphglyph]')).toHaveAttribute('data-state', 'ready');
   await page.getByRole('slider', { name: 'Progress' }).fill('1');
   const path = await page.locator('[data-morphglyph] path').first().getAttribute('d');
-  expect(path?.match(/M/g)?.length).toBeGreaterThan(1);
+  expect(path).not.toBeNull();
+  expect(path!.match(/M/g)).toHaveLength(5);
   await page.getByRole('textbox', { name: 'After', exact: true }).fill('');
   await page.getByRole('slider', { name: 'Progress' }).fill('1');
   await expect(page.locator('[data-morphglyph]')).toHaveAttribute('aria-label', '');
