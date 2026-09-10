@@ -104,7 +104,7 @@ export function App() {
     <>
       <header className="nav">
         <a className="brand" href="#">
-          MorphGlyph <span className="version">0.1.0</span>
+          MorphGlyph <span className="version">0.2.0</span>
         </a>
         <nav aria-label="Main">
           <a className="active" href="#playground">

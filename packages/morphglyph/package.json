@@ -1,6 +1,6 @@
 {
   "name": "morphglyph",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Manim-inspired glyph transformations for React",
   "type": "module",
   "license": "MIT",

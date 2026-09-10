@@ -16,7 +16,7 @@ import { MorphGlyph } from 'morphglyph';
 Install the package from the GitHub release (it is not published to the npm registry):
 
 ```sh
-npm install https://github.com/aomona/MorphGlyph/releases/download/v0.1.0/morphglyph-0.1.0.tgz
+npm install https://github.com/aomona/MorphGlyph/releases/download/v0.2.0/morphglyph-0.2.0.tgz
 ```
 
 Requires React 18.2+ or 19 and an ESM bundler. Tested with Vite and Next.js.
@@ -177,7 +177,7 @@ All time values are milliseconds. Dimensions and letter spacing use SVG units
 
 ### Limits
 
-Version 0.1 targets single-line horizontal Japanese and Latin text. Newlines
+Version 0.2 targets single-line horizontal Japanese and Latin text. Newlines
 become spaces, and text is normalized to NFC. The bundled font cannot contain
 all Unicode characters; missing glyphs report an error and show the fallback.
 Strings are limited to 256 code points to bound preparation cost.
