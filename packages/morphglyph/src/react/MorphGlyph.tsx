@@ -25,6 +25,7 @@ export const MorphGlyph = forwardRef<MorphGlyphHandle, MorphGlyphProps>(function
   useImperativeHandle(ref, () => ({
     play: () => controls.current.play(), pause: () => controls.current.pause(),
     restart: () => controls.current.restart(), reverse: () => controls.current.reverse(),
+    seek: p => controls.current.seek(p),
   }), []);
 
   useEffect(() => {

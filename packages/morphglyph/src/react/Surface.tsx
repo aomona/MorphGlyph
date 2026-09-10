@@ -5,7 +5,7 @@ import { clamp, type MorphPlan, type Shape } from '../core/types';
 import type { MorphGlyphHandle, MorphGlyphProps } from './types';
 
 const noop = () => {};
-export const idleControls = (): MorphGlyphHandle => ({ play: noop, pause: noop, restart: noop, reverse: noop });
+export const idleControls = (): MorphGlyphHandle => ({ play: noop, pause: noop, restart: noop, reverse: noop, seek: noop });
 
 /** React owns the SVG shell; the renderer exclusively owns this group's children. */
 export function Surface({ plan, options, reduced, snapshot, controls, semantic }: {
@@ -48,6 +48,7 @@ export function Surface({ plan, options, reduced, snapshot, controls, semantic }
       }
       paths.forEach((path, i) => path.setAttribute('d', shape.glyphs[i] ? toPath(shape.glyphs[i].contours) : ''));
       container.dataset.progress = String(actual);
+      o.onUpdate?.(actual);
       if (lastEnd !== (actual >= .5)) { lastEnd = actual >= .5; latest.current.semantic(lastEnd); }
     };
     const stop = () => { cancelAnimationFrame(raf); raf = 0; previous = 0; };
@@ -99,6 +100,11 @@ export function Surface({ plan, options, reduced, snapshot, controls, semantic }
         if (latest.current.options.progress !== undefined) return;
         stop(); sign *= -1; completed = false; started = false; wait = 0;
         running = latest.current.options.playing !== false;
+        draw(); schedule();
+      },
+      seek(progress) {
+        if (latest.current.options.progress !== undefined) return;
+        stop(); position = clamp(progress); completed = false; wait = 0;
         draw(); schedule();
       },
     };

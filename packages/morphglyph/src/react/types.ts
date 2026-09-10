@@ -7,6 +7,7 @@ export type MorphGlyphHandle = {
   pause(): void;
   restart(): void;
   reverse(): void;
+  seek(progress: number): void;
 };
 
 export type MorphGlyphBaseProps = {
@@ -26,6 +27,8 @@ export type MorphGlyphBaseProps = {
   onStart?: () => void;
   onComplete?: () => void;
   onError?: (error: Error) => void;
+  /** Frame callback; use refs when updating a timeline to avoid per-frame React renders. */
+  onUpdate?: (progress: number) => void;
   className?: string;
   style?: CSSProperties;
   id?: string;
