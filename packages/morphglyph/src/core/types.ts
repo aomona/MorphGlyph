@@ -11,6 +11,10 @@ export type ContourPair = { from: Contour; to: Contour };
 export type GlyphPair = { contours: ContourPair[] };
 export type MorphPlan = { from: Shape; to: Shape; pairs: GlyphPair[]; bounds: Bounds };
 
-export const clamp = (n: number, min = 0, max = 1) => Math.min(max, Math.max(min, Number.isFinite(n) ? n : min));
+export const clamp = (n: number, min = 0, max = 1) =>
+  Math.min(max, Math.max(min, Number.isFinite(n) ? n : 0));
 export const mix = (a: number, b: number, t: number) => a + (b - a) * t;
-export const mixPoint = (a: Point, b: Point, t: number): Point => ({ x: mix(a.x, b.x, t), y: mix(a.y, b.y, t) });
+export const mixPoint = (a: Point, b: Point, t: number): Point => ({
+  x: mix(a.x, b.x, t),
+  y: mix(a.y, b.y, t),
+});
