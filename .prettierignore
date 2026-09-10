@@ -1,0 +1,9 @@
+node_modules
+dist
+.verification
+test-results
+playwright-report
+pnpm-lock.yaml
+packages/morphglyph/assets
+packages/morphglyph/README.md
+packages/morphglyph/LICENSE
