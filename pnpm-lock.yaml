@@ -45,6 +45,18 @@ importers:
         specifier: ^3.2.0
         version: 3.2.7(@types/node@24.13.4)
 
+  examples/playground:
+    dependencies:
+      morphglyph:
+        specifier: workspace:*
+        version: link:../../packages/morphglyph
+      react:
+        specifier: ^19.0.0
+        version: 19.3.0
+      react-dom:
+        specifier: ^19.0.0
+        version: 19.3.0(react@19.3.0)
+
   packages/morphglyph:
     dependencies:
       opentype.js:

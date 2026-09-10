@@ -1,0 +1,120 @@
+import { useCallback, useRef, useState, type ChangeEvent } from 'react';
+import { MorphGlyph, parseFont, type Easing, type MorphGlyphHandle, type FontHandle, type Quality } from 'morphglyph';
+
+function Icon({ name }: { name: 'play' | 'pause' | 'reset' | 'reverse' | 'arrow' | 'copy' | 'github' }) {
+  const paths = {
+    play: 'm8 5 11 7-11 7Z', pause: 'M8 5v14M16 5v14',
+    reset: 'M3 10a9 9 0 1 1 1.5 7M3 4v6h6',
+    reverse: 'm8 4-5 5 5 5M3 9h12a6 6 0 0 1 0 12',
+    arrow: 'M5 12h14m-5-5 5 5-5 5',
+    copy: 'M9 8h11v13H9ZM15 8V3H4v13h5',
+    github: 'M9 19c-4 1-4-2-6-2m12 5v-4c0-1 .1-1.5-.5-2 3-.4 6-1.5 6-6a5 5 0 0 0-1.5-3.5c.2-.8.2-2-.3-3.5 0 0-1.3 0-3.7 1.5a13 13 0 0 0-6 0C6.6 3 5.3 3 5.3 3c-.5 1.5-.5 2.7-.3 3.5A5 5 0 0 0 3.5 10c0 4.5 3 5.6 6 6-.6.5-.5 1.3-.5 2v4',
+  };
+  return <svg width="17" height="17" viewBox="0 0 24 24" fill={name === 'play' ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d={paths[name]} /></svg>;
+}
+
+const presets = [{ before: 'Hello', after: 'World', label: 'Hello → World' }, { before: '文字', after: 'かたち', label: '文字 → かたち' }, { before: '日', after: '田', label: '日 → 田' }, { before: '123', after: '4567', label: '123 → 4567' }];
+
+export function App() {
+  const [before, setBefore] = useState('Hello');
+  const [after, setAfter] = useState('World');
+  const [duration, setDuration] = useState(1600);
+  const [pathArc, setPathArc] = useState(0);
+  const [stagger, setStagger] = useState(0);
+  const [fontSize, setFontSize] = useState(100);
+  const [spacing, setSpacing] = useState(0);
+  const [easing, setEasing] = useState<Easing>('smooth');
+  const [quality, setQuality] = useState<Quality>('balanced');
+  const [loop, setLoop] = useState(false);
+  const [outline, setOutline] = useState(false);
+  const [playing, setPlaying] = useState(false);
+  const [ready, setReady] = useState(false);
+  const [customFont, setCustomFont] = useState<FontHandle>();
+  const [fontName, setFontName] = useState('Noto Sans JP · Regular');
+  const [error, setError] = useState('');
+  const [copied, setCopied] = useState(false);
+  const [restartKey, setRestartKey] = useState(0);
+  const controller = useRef<MorphGlyphHandle>(null);
+  const slider = useRef<HTMLInputElement>(null);
+  const progressLabel = useRef<HTMLOutputElement>(null);
+  const file = useRef<HTMLInputElement>(null);
+  const onUpdate = useCallback((p: number) => {
+    if (slider.current) slider.current.value = String(p);
+    if (progressLabel.current) progressLabel.current.textContent = `${Math.round(p * 100)}%`;
+  }, []);
+
+  const code = `<MorphGlyph\n  before=${JSON.stringify(before)}\n  after=${JSON.stringify(after)}\n${customFont ? '  font="/fonts/your-font.otf"\n' : ''}  fontSize={${fontSize}}\n  duration={${duration}}\n  easing="${easing}"${pathArc ? `\n  pathArc={${pathArc}}` : ''}${stagger ? `\n  stagger={${stagger}}` : ''}${spacing ? `\n  letterSpacing={${spacing}}` : ''}${quality !== 'balanced' ? `\n  quality="${quality}"` : ''}${loop ? '\n  loop\n  direction="alternate"' : ''}\n/>`;
+  const replay = () => { controller.current?.restart(); setPlaying(true); };
+  const usePreset = (preset: typeof presets[number]) => {
+    setBefore(preset.before); setAfter(preset.after); setRestartKey(k => k + 1); setError('');
+  };
+  const uploadFont = async (event: ChangeEvent<HTMLInputElement>) => {
+    const selected = event.target.files?.[0];
+    if (!selected) return;
+    try { setCustomFont(parseFont(await selected.arrayBuffer(), selected.name)); setFontName(selected.name); setError(''); }
+    catch { setError('This font could not be read. Choose a static TTF or OTF file.'); }
+    event.target.value = '';
+  };
+
+  return <>
+    <header className="nav">
+      <a className="brand" href="#"><svg width="30" height="30" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="currentColor" /><path d="M8 23V9l8 10 8-10v14" fill="none" stroke="#181a19" strokeWidth="2.5" /></svg>MorphGlyph <span className="version">v0.1</span></a>
+      <nav aria-label="Main"><a className="active" href="#playground">Playground</a><a href="#api">API</a><a className="github" href="https://github.com/aomona/MorphGlyph"><Icon name="github" /> GitHub <span>↗</span></a></nav>
+    </header>
+    <main>
+      <section className="intro">
+        <div><p className="eyebrow"><span /> A LITTLE CHANGE OF CHARACTER</p><h1>Letters, in motion<span>.</span></h1><p className="subtitle">Turn one word into another. Shape by shape, point by point.<br className="mobile-break" /> A React library inspired by Manim.</p></div>
+        <div className="intro-note"><span>React + SVG</span><span>日本語 supported</span><span>MIT licensed</span></div>
+      </section>
+
+      <section className="workbench" id="playground" aria-label="MorphGlyph playground">
+        <aside className="settings">
+          <div className="panel-title"><span>01 / COMPOSE</span><span className="tiny-dot" /></div>
+          <label className="field">Before<input value={before} onChange={e => setBefore(e.target.value)} maxLength={64} spellCheck={false} /></label>
+          <div className="between"><Icon name="arrow" /></div>
+          <label className="field">After<input value={after} onChange={e => setAfter(e.target.value)} maxLength={64} spellCheck={false} /></label>
+          <div className="font-field"><span className="field-label">Typeface</span><button className="font-button" onClick={() => file.current?.click()} title="Load a local TTF or OTF font"><span className="font-sample">Aa</span><span>{fontName}</span><span>↗</span></button><input ref={file} type="file" accept=".ttf,.otf" hidden onChange={uploadFont} />{customFont && <button className="text-button" onClick={() => { setCustomFont(undefined); setFontName('Noto Sans JP · Regular'); }}>Use default font</button>}</div>
+          <div className="section-rule" />
+          <div className="panel-title">02 / TRANSFORM</div>
+          <Range label="Duration" value={duration} min={200} max={4000} step={100} unit="ms" onChange={setDuration} />
+          <Range label="Path arc" value={pathArc} min={-3.14} max={3.14} step={.01} unit="rad" onChange={setPathArc} />
+          <Range label="Stagger" value={stagger} min={0} max={200} step={10} unit="ms" onChange={setStagger} />
+          <label className="select-field">Easing<select value={typeof easing === 'string' ? easing : 'smooth'} onChange={e => setEasing(e.target.value as Easing)}><option value="smooth">Smooth</option><option value="linear">Linear</option><option value="smoothstep">Smoothstep</option><option value="smootherstep">Smootherstep</option></select></label>
+          <details className="advanced"><summary>Type & rendering <span>+</span></summary><Range label="Font size" value={fontSize} min={24} max={180} step={2} unit="px" onChange={setFontSize} /><Range label="Letter spacing" value={spacing} min={-5} max={20} step={1} unit="px" onChange={setSpacing} /><label className="select-field">Quality<select value={quality} onChange={e => setQuality(e.target.value as Quality)}><option value="fast">Fast</option><option value="balanced">Balanced</option><option value="high">High</option></select></label></details>
+        </aside>
+
+        <div className="canvas-panel">
+          <div className="canvas-toolbar"><span className="panel-title">LIVE PREVIEW</span><div className="switches"><label><input type="checkbox" checked={outline} onChange={e => setOutline(e.target.checked)} />Outlines</label><label><input type="checkbox" checked={loop} onChange={e => setLoop(e.target.checked)} />Loop</label></div></div>
+          <div className={`stage ${outline ? 'outlines' : ''}`}>
+            <div className="stage-coordinates"><span>TRANSFORM</span><span>01 → 02</span></div>
+            <div className="stage-center">
+              <MorphGlyph key={restartKey} ref={controller} before={before} after={after} font={customFont} fontSize={fontSize} letterSpacing={spacing} duration={duration} easing={easing} pathArc={pathArc} stagger={stagger} quality={quality} loop={loop} direction="alternate" onReady={() => { setReady(true); setError(''); }} onStart={() => setPlaying(true)} onComplete={() => { if (!loop) setPlaying(false); }} onError={e => { setError(e.message); setReady(false); setPlaying(false); }} onUpdate={onUpdate} />
+            </div>
+            <div className="stage-caption"><span className="status-dot" />{error ? 'FONT UNAVAILABLE' : ready ? 'REAL GLYPHS. REAL TRANSFORM.' : 'LOADING JAPANESE FONT…'}</div>
+          </div>
+          {error && <p className="error" role="alert">{error}</p>}
+          <div className="transport">
+            <button className="play-button" aria-label={playing ? 'Pause' : 'Play'} disabled={!ready} onClick={() => { if (playing) { controller.current?.pause(); setPlaying(false); } else { if (Number(slider.current?.value) >= 1) replay(); else { controller.current?.play(); setPlaying(true); } } }}><Icon name={playing ? 'pause' : 'play'} /><span>{playing ? 'Pause' : 'Play'}</span></button>
+            <button className="icon-button" aria-label="Replay" disabled={!ready} onClick={replay}><Icon name="reset" /></button>
+            <button className="icon-button" aria-label="Reverse" disabled={!ready} onClick={() => { controller.current?.reverse(); setPlaying(true); }}><Icon name="reverse" /></button>
+            <input ref={slider} className="timeline" aria-label="Progress" type="range" min={0} max={1} step={.001} defaultValue={0} disabled={!ready} onChange={e => { controller.current?.pause(); controller.current?.seek(Number(e.target.value)); setPlaying(false); }} />
+            <output ref={progressLabel} className="progress-value">0%</output>
+          </div>
+          <div className="presets"><span>TRY A PAIR</span>{presets.map(p => <button key={p.label} className={p.before === before && p.after === after ? 'selected' : ''} onClick={() => usePreset(p)}>{p.label}</button>)}</div>
+        </div>
+      </section>
+
+      <section className="code-section" aria-label="Usage example">
+        <div className="code-description"><p className="eyebrow">FROM PLAYGROUND TO PROJECT</p><h2>Just two words<br />to get started.</h2><p>Your settings, ready for React.<br />No canvas. No animation dependency.</p><a href="https://github.com/aomona/MorphGlyph#installation">Get the library <Icon name="arrow" /></a></div>
+        <div className="code-window"><div className="code-heading"><span><span className="code-dot" /> YourComponent.tsx</span><button onClick={async () => { try { await navigator.clipboard.writeText(`import { MorphGlyph } from 'morphglyph';\n\n${code}`); setCopied(true); setTimeout(() => setCopied(false), 2000); } catch { setError('Clipboard unavailable. Select and copy the code below.'); } }}><Icon name="copy" />{copied ? 'Copied' : 'Copy code'}</button></div><pre><code><span className="code-import">import</span>{` { MorphGlyph } `}<span className="code-import">from</span>{` 'morphglyph';\n\n`}{code}</code></pre></div>
+      </section>
+
+      <section className="api-section" id="api"><div><p className="eyebrow">SMALL API. MANY POSSIBILITIES.</p><h2>Make it your own.</h2><p>Control the motion, bring a font, or drive every frame.</p></div><div className="api-grid"><article><span className="api-number">01</span><h3>Shape the motion</h3><p><code>duration</code>, <code>easing</code>, <code>pathArc</code> and <code>stagger</code> set the pace and trajectory.</p></article><article><span className="api-number">02</span><h3>Bring your type</h3><p>Japanese included. Pass a static TTF or OTF to <code>font</code> for your own letterforms.</p></article><article><span className="api-number">03</span><h3>Take control</h3><p>Pass <code>progress</code> from 0 to 1 to connect a slider, scroll position or timeline.</p></article></div><a className="docs-link" href="https://github.com/aomona/MorphGlyph#api">Read the full API reference <span>↗</span></a></section>
+    </main>
+    <footer><span>MorphGlyph <span className="muted">/</span> Made for the in-between.</span><span>Inspired by <a href="https://www.manim.community/">Manim</a><span className="footer-dot">·</span><a href="https://github.com/aomona/MorphGlyph/blob/main/LICENSE">MIT License</a></span></footer>
+  </>;
+}
+
+function Range({ label, value, min, max, step, unit, onChange }: { label: string; value: number; min: number; max: number; step: number; unit: string; onChange: (value: number) => void }) {
+  return <label className="range-field"><span>{label}<output>{value} <span>{unit}</span></output></span><input type="range" min={min} max={max} step={step} value={value} onChange={e => onChange(Number(e.target.value))} /></label>;
+}
