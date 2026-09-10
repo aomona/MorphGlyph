@@ -1,6 +1,6 @@
 # MorphGlyph 実装計画
 
-2026-09-10 / 計画のみ。実装は未着手。
+2026-09-10 / 初期設計の記録。現在の実装・仕様は README.md を参照。
 
 ## 目的
 
@@ -35,27 +35,27 @@ import { MorphGlyph } from 'morphglyph';
 
 `morphglyph` は import 名の案。npm 上の取得可否は公開準備時に確認する。
 
-| props | 初期値 / 契約 |
-| --- | --- |
-| `before`, `after` | 必須の文字列。空文字も有効 |
-| `font` | フォント URL またはライブラリの読み込み済み FontHandle。省略時は同梱の日本語対応フォント |
-| `fontSize` | `64`、SVG 座標上の px |
-| `letterSpacing` | `0`、px。末尾への余分な加算なし |
-| `align` | `"center"`。`"left" / "center" / "right"` |
-| `duration` | `1000` ms。stagger を含む一方向の再生時間 |
-| `delay` | `0` ms。初回または明示的 restart 時の待ち時間 |
-| `easing` | `"smooth"`。`"linear" / "smoothstep" / "smootherstep"` または `(t: number) => number` |
-| `pathArc` | `0` rad。対応点の移動軌道を円弧化 |
-| `stagger` | `0` ms。グリフごとの開始時間差。総遅延が duration を超える値は縮める |
-| `playing` | `true`。false で現在位置に一時停止 |
-| `loop` | `false`。true で継続再生 |
-| `direction` | `"normal"`。`"reverse" / "alternate"` も提供 |
-| `progress` | 未指定。指定時は 0〜1 の制御モード |
-| `quality` | `"balanced"`。`"fast" / "balanced" / "high"`、幾何精度と点数上限のプリセット |
-| `reducedMotion` | `"system"`。`"always" / "never"` も提供 |
-| `fallback` | 未指定なら通常テキスト。任意の ReactNode で置換可能 |
-| `onReady`, `onStart`, `onComplete`, `onError` | 状態遷移・読み込み失敗の通知 |
-| `className`, `style`, `id`, `aria-label` | ルート要素に適用。塗り色は `currentColor` |
+| props                                         | 初期値 / 契約                                                                            |
+| --------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| `before`, `after`                             | 必須の文字列。空文字も有効                                                               |
+| `font`                                        | フォント URL またはライブラリの読み込み済み FontHandle。省略時は同梱の日本語対応フォント |
+| `fontSize`                                    | `64`、SVG 座標上の px                                                                    |
+| `letterSpacing`                               | `0`、px。末尾への余分な加算なし                                                          |
+| `align`                                       | `"center"`。`"left" / "center" / "right"`                                                |
+| `duration`                                    | `1000` ms。stagger を含む一方向の再生時間                                                |
+| `delay`                                       | `0` ms。初回または明示的 restart 時の待ち時間                                            |
+| `easing`                                      | `"smooth"`。`"linear" / "smoothstep" / "smootherstep"` または `(t: number) => number`    |
+| `pathArc`                                     | `0` rad。対応点の移動軌道を円弧化                                                        |
+| `stagger`                                     | `0` ms。グリフごとの開始時間差。総遅延が duration を超える値は縮める                     |
+| `playing`                                     | `true`。false で現在位置に一時停止                                                       |
+| `loop`                                        | `false`。true で継続再生                                                                 |
+| `direction`                                   | `"normal"`。`"reverse" / "alternate"` も提供                                             |
+| `progress`                                    | 未指定。指定時は 0〜1 の制御モード                                                       |
+| `quality`                                     | `"balanced"`。`"fast" / "balanced" / "high"`、幾何精度と点数上限のプリセット             |
+| `reducedMotion`                               | `"system"`。`"always" / "never"` も提供                                                  |
+| `fallback`                                    | 未指定なら通常テキスト。任意の ReactNode で置換可能                                      |
+| `onReady`, `onStart`, `onComplete`, `onError` | 状態遷移・読み込み失敗の通知                                                             |
+| `className`, `style`, `id`, `aria-label`      | ルート要素に適用。塗り色は `currentColor`                                                |
 
 型は自動再生モードと progress 制御モードの判別可能な union にし、progress と playing / loop / direction / delay / duration / stagger の同時指定を禁止する。制御モードの progress はイージング適用前の進捗で、0 と 1 は必ずそれぞれの端点になる。初版では制御モードの stagger を省き、スクラブの意味を単純に保つ。
 
@@ -133,7 +133,12 @@ TransformMatchingShapes、文字対応の手動指定、複数行・縦書き、
 
 ## 参照
 
-- 参照会話: ReactでManim文字変形デモ作成 / 6aa21a5f-172c-83ee-9cee-a0221aefbab4。API で取得できたコードは一部が切り詰められているため、既存コード全体を監査済みとは扱わない。
 - https://docs.manim.community/en/stable/reference/manim.animation.transform.Transform.html
 - https://docs.manim.community/en/stable/_modules/manim/animation/transform.html
 - https://github.com/opentypejs/opentype.js
+
+## 実装時の変更
+
+- Vite の依存最適化と Next.js の双方で追加設定なしに動かすため、既定フォントは遅延読み込みする別のデータモジュールにした。元の OTF とライセンスも同梱する。
+- ref に seek(progress)、props に onUpdate を追加し、Playground のタイムラインから利用する。
+- Playground は白・黒・グレーを使い、宣伝文句を除いた操作画面と API 説明にする。

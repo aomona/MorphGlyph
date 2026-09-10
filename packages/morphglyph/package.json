@@ -5,15 +5,39 @@
   "type": "module",
   "license": "MIT",
   "author": "aomona",
-  "files": ["dist", "assets", "README.md", "LICENSE"],
+  "homepage": "https://aomona.github.io/MorphGlyph/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aomona/MorphGlyph.git",
+    "directory": "packages/morphglyph"
+  },
+  "bugs": {
+    "url": "https://github.com/aomona/MorphGlyph/issues"
+  },
+  "files": [
+    "dist",
+    "assets",
+    "README.md",
+    "LICENSE"
+  ],
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
-    ".": { "types": "./dist/index.d.ts", "import": "./dist/index.js" },
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
     "./assets/*": "./assets/*"
   },
   "sideEffects": false,
-  "scripts": { "build": "node scripts/build.mjs" },
-  "peerDependencies": { "react": "^18.2.0 || ^19.0.0", "react-dom": "^18.2.0 || ^19.0.0" },
-  "dependencies": { "opentype.js": "1.3.4" }
+  "scripts": {
+    "build": "node scripts/build.mjs"
+  },
+  "peerDependencies": {
+    "react": "^18.2.0 || ^19.0.0",
+    "react-dom": "^18.2.0 || ^19.0.0"
+  },
+  "dependencies": {
+    "opentype.js": "1.3.4"
+  }
 }
