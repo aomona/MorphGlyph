@@ -412,8 +412,9 @@ export function App() {
                 <MorphLabel
                   before="Copy code"
                   text={copied ? 'Copied' : 'Copy code'}
-                  width={58}
-                  size={11}
+                  width={76}
+                  size={13}
+                  height={24}
                 />
               </button>
             </div>

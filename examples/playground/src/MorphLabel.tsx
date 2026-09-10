@@ -6,11 +6,13 @@ export function MorphLabel({
   text,
   width,
   size = 12,
+  height = 18,
 }: {
   before: string;
   text: string;
   width: number;
   size?: number;
+  height?: number;
 }) {
   return (
     <span aria-hidden="true" className="morph-label">
@@ -20,7 +22,7 @@ export function MorphLabel({
         duration={220}
         fontSize={size}
         width={width}
-        height={18}
+        height={height}
         selectable={false}
       />
     </span>

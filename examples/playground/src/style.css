@@ -452,6 +452,8 @@ input[type='range']::-moz-range-thumb {
   color: #737373;
 }
 .code-heading button {
+  min-height: 36px;
+  padding: 0 10px;
   display: flex;
   align-items: center;
   gap: 6px;
@@ -460,8 +462,10 @@ input[type='range']::-moz-range-thumb {
   color: #525252;
   font-size: 11px;
 }
-.code-heading svg {
-  width: 13px;
+.code-heading button > svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
 }
 .code-window pre {
   margin: 0;
