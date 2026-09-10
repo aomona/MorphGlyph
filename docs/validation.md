@@ -43,11 +43,11 @@ Node 24.21.0, macOS arm64, balanced quality, 64 px, arc π/4. Each case measures
 83.87 ms in this run. This is a CPU benchmark, **not a browser FPS measurement**;
 DOM updates, paint, compositing and font download are excluded.
 
-| Workload                | Preparation | Median frame | p95 frame | Control points |
-| ----------------------- | ----------- | ------------ | --------- | -------------- |
-| 20 Latin glyphs         | 7.67 ms     | 0.64 ms      | 1.60 ms   | 2,620          |
-| 20 Japanese glyphs      | 9.08 ms     | 1.31 ms      | 1.89 ms   | 5,788          |
-| 10 × 20 Japanese glyphs | 20.92 ms    | 9.30 ms      | 11.51 ms  | 57,880         |
+| Workload                       | Preparation | Median frame | p95 frame | Control points |
+| ------------------------------ | ----------- | ------------ | --------- | -------------- |
+| 20 Latin glyphs                | 7.67 ms     | 0.64 ms      | 1.60 ms   | 2,620          |
+| 21 → 20 Japanese glyphs        | 9.08 ms     | 1.31 ms      | 1.89 ms   | 5,788          |
+| 10 × (21 → 20 Japanese glyphs) | 20.92 ms    | 9.30 ms      | 11.51 ms  | 57,880         |
 
 The ten-instance case shares cached font/text geometry. Heavy fonts and long
 strings can exceed a frame budget. The implementation caps input length and
