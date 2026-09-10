@@ -8,6 +8,7 @@ import {
   type Quality,
 } from 'morphglyph';
 import { MorphLabel } from './MorphLabel';
+import { Examples } from './Examples';
 
 function Icon({
   name,
@@ -429,6 +430,8 @@ export function App() {
             </pre>
           </div>
         </section>
+
+        <Examples />
 
         <section className="api-section" id="api">
           <h2>API</h2>
