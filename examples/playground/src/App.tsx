@@ -7,6 +7,7 @@ import {
   type FontHandle,
   type Quality,
 } from 'morphglyph';
+import { MorphLabel } from './MorphLabel';
 
 function Icon({
   name,
@@ -75,7 +76,7 @@ export function App() {
     if (progressLabel.current) progressLabel.current.textContent = `${Math.round(p * 100)}%`;
   }, []);
 
-  const code = `<MorphGlyph\n  before=${JSON.stringify(before)}\n  after=${JSON.stringify(after)}\n${customFont ? '  font="/fonts/your-font.otf"\n' : ''}  fontSize={${fontSize}}\n  duration={${duration}}\n  easing="${easing}"${pathArc ? `\n  pathArc={${pathArc}}` : ''}${stagger ? `\n  stagger={${stagger}}` : ''}${spacing ? `\n  letterSpacing={${spacing}}` : ''}${quality !== 'balanced' ? `\n  quality="${quality}"` : ''}${loop ? '\n  loop\n  direction="alternate"' : ''}\n/>`;
+  const code = `<MorphGlyph\n  before=${JSON.stringify(before)}\n  after=${JSON.stringify(after)}\n${customFont ? '  font="/fonts/your-font.otf"\n' : ''}  fontSize={${fontSize}}\n  duration={${duration}}\n  easing="${easing}"${pathArc ? `\n  pathArc={${pathArc}}` : ''}${stagger ? `\n  stagger={${stagger}}` : ''}${spacing ? `\n  letterSpacing={${spacing}}` : ''}${quality !== 'balanced' ? `\n  quality="${quality}"` : ''}${loop ? '\n  loop\n  loopDelay={1000}\n  direction="alternate"' : ''}\n/>`;
   const replay = () => {
     controller.current?.restart();
     setPlaying(true);
@@ -261,7 +262,15 @@ export function App() {
               </div>
             </div>
             <div className={`stage ${outline ? 'outlines' : ''}`}>
-              <div className="stage-center">
+              <div
+                className="stage-center"
+                onPointerDownCapture={(event) => {
+                  if ((event.target as Element).closest('[data-morphglyph-text]')) {
+                    controller.current?.pause();
+                    setPlaying(false);
+                  }
+                }}
+              >
                 <MorphGlyph
                   key={restartKey}
                   ref={controller}
@@ -276,6 +285,7 @@ export function App() {
                   stagger={stagger}
                   quality={quality}
                   loop={loop}
+                  loopDelay={1000}
                   direction="alternate"
                   onReady={() => {
                     setReady(true);
@@ -321,7 +331,7 @@ export function App() {
                 }}
               >
                 <Icon name={playing ? 'pause' : 'play'} />
-                <span>{playing ? 'Pause' : 'Play'}</span>
+                <MorphLabel before="Play" text={playing ? 'Pause' : 'Play'} width={34} />
               </button>
               <button
                 className="icon-button"
@@ -358,7 +368,7 @@ export function App() {
                   setPlaying(false);
                 }}
               />
-              <output ref={progressLabel} className="progress-value">
+              <output ref={progressLabel} className="progress-value" aria-live="off">
                 0%
               </output>
             </div>
@@ -385,6 +395,7 @@ export function App() {
                 <span className="code-dot" /> YourComponent.tsx
               </span>
               <button
+                aria-label={copied ? 'Copied' : 'Copy code'}
                 onClick={async () => {
                   try {
                     await navigator.clipboard.writeText(
@@ -398,7 +409,12 @@ export function App() {
                 }}
               >
                 <Icon name="copy" />
-                {copied ? 'Copied' : 'Copy code'}
+                <MorphLabel
+                  before="Copy code"
+                  text={copied ? 'Copied' : 'Copy code'}
+                  width={58}
+                  size={11}
+                />
               </button>
             </div>
             <pre>

@@ -1,0 +1,28 @@
+import { MorphGlyph } from 'morphglyph';
+
+/** The native button owns its accessible name; this is only its visual label. */
+export function MorphLabel({
+  before,
+  text,
+  width,
+  size = 12,
+}: {
+  before: string;
+  text: string;
+  width: number;
+  size?: number;
+}) {
+  return (
+    <span aria-hidden="true" className="morph-label">
+      <MorphGlyph
+        before={before}
+        after={text}
+        duration={220}
+        fontSize={size}
+        width={width}
+        height={18}
+        selectable={false}
+      />
+    </span>
+  );
+}

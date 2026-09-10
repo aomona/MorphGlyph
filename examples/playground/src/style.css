@@ -338,6 +338,12 @@ input[type='range']::-moz-range-thumb {
   stroke: currentColor;
   stroke-width: 0.65;
 }
+.morph-label,
+.morph-label [data-morphglyph] {
+  display: inline-flex;
+  align-items: center;
+  user-select: none;
+}
 .transport {
   height: 65px;
   display: flex;
